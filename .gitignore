@@ -1,0 +1,4 @@
+*.o
+.sconsign.dblite
+/build/fh8610/release
+/build/fh8610/objs
