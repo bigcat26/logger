@@ -5,7 +5,7 @@ option(CONFIG_MODULE_LOGGER_WITH_SYSLOG "Support syslog appender" OFF)
 
 file (GLOB source 
 	*
-	${CMAKE_SOURCE_DIR}/include/logger/*
+	${CMAKE_CURRENT_SOURCE_DIR}/../include/logger/*
 	)
 
 if (CONFIG_MODULE_LOGGER_WITH_FILE)
@@ -17,5 +17,5 @@ if (CONFIG_MODULE_LOGGER_WITH_SYSLOG)
 endif ()
 
 add_library(${PROJECT_NAME} STATIC ${source})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 set_target_properties(${name} PROPERTIES PREFIX "lib")
