@@ -9,6 +9,9 @@
 
 static char _logbuf[1024];
 static struct LOGGER _logger;
+static struct LOGGER_LAYOUT _layout;
+static struct LOGGER_APPENDER _appender;
+
 #if defined(WIN32)
 static HANDLE _lock;
 #else
@@ -36,8 +39,6 @@ void _app_logger_lock_release(logger_lock_t lock)
 int main(void)
 {
     struct LOGGER_CFG cfg = {0};
-    struct LOGGER_LAYOUT layout;
-    struct LOGGER_APPENDER appender;
 
 #if !defined(WIN32)
     pthread_mutex_init(&_lock, NULL);
@@ -58,10 +59,17 @@ int main(void)
     // init logger, layout, appender
     logger_init(&_logger, &cfg);
     logger_set_default(&_logger);
-    logger_layout_full_init(&layout);
-    logger_appender_console_init(&appender);
-    logger_layout_add_appender(&layout, &appender);
-    logger_add_layout(&_logger, &layout);
+    logger_layout_full_init(&_layout);
+    logger_appender_console_init(&_appender);
+    logger_layout_add_appender(&_layout, &_appender);
+    logger_add_layout(&_logger, &_layout);
+
+    LOGLV("hello world");
+    LOGLD("hello world");
+    LOGLI("hello world");
+    LOGLW("hello world");
+    LOGLE("hello world");
+    LOGLF("hello world");
 
     return 0;
 }
