@@ -7,4 +7,3 @@ Simple logger lib for embedding devices, highly customizable, easy to use.
 - Console appender (UART, stdout)
 - File appender
 - Syslog appender
-

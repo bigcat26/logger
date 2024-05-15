@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(logger-lib)
+project(clogger)
 
-option(CONFIG_MODULE_LOGGER_BUILD_EXAMPLE "Build logger example" OFF)
+# option(CONFIG_MODULE_LOGGER_BUILD_EXAMPLE "Build logger example" OFF)
 
-add_subdirectory(lib)
+add_subdirectory(src)
 
-if (CONFIG_MODULE_LOGGER_BUILD_EXAMPLE)
-  add_subdirectory(example)
-endif ()
+# if (CONFIG_MODULE_LOGGER_BUILD_EXAMPLE)
+#   add_subdirectory(example)
+# endif ()
