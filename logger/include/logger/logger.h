@@ -1,16 +1,12 @@
 #ifndef __LOGGER_H__
 #define __LOGGER_H__
 
-#include <time.h>
 #include <stdarg.h>
 #include <string.h>
+#include <time.h>
+
 #include "logger/logger_marcos.h"
 
-#ifdef _MSC_VER
-#define LOGGER_PATH_SLASH       '\\'
-#else
-#define LOGGER_PATH_SLASH       '/'
-#endif
 
 struct LOGGER;
 struct LOGGER_APPENDER;
@@ -22,8 +18,7 @@ typedef struct tm *(*PFNLOGGER_LOCALTIME)(const time_t *);
 typedef void (*PFNLOGGER_LOCK_ACQUIRE)(logger_lock_t);
 typedef void (*PFNLOGGER_LOCK_RELEASE)(logger_lock_t);
 
-struct LOGGER_CFG
-{
+struct LOGGER_CFG {
     char *buf;
     int buf_size;
     logger_lock_t lock;
@@ -35,8 +30,7 @@ struct LOGGER_CFG
 
 typedef void (*LOGGER_WRITER)(struct LOGGER_APPENDER *appender, int level, const char *buf, int len);
 
-struct LOGGER_APPENDER
-{
+struct LOGGER_APPENDER {
     struct LOGGER_APPENDER *next;
     int level_mask;
     LOGGER_WRITER writer;
@@ -45,8 +39,7 @@ struct LOGGER_APPENDER
 typedef int (*LOGGER_FORMATTER_STR)(struct LOGGER_LAYOUT *layout, char *buf, int n, int level, const char *file, unsigned int line, const char *fmt, va_list ap);
 typedef int (*LOGGER_FORMATTER_BIN)(struct LOGGER_LAYOUT *layout, char *buf, int n, int level, const char *file, unsigned int line, const void *dat, int len);
 
-struct LOGGER_LAYOUT
-{
+struct LOGGER_LAYOUT {
     struct LOGGER *logger;
     struct LOGGER_LAYOUT *next;
     LOGGER_FORMATTER_STR format_str;
@@ -54,8 +47,7 @@ struct LOGGER_LAYOUT
     struct LOGGER_APPENDER *appenders;
 };
 
-struct LOGGER
-{
+struct LOGGER {
     int level_mask;
     struct LOGGER_CFG cfg;
     struct LOGGER_LAYOUT *layouts;

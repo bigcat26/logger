@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <ctype.h>
 
 #include "logger/logger.h"
@@ -10,22 +11,20 @@
 #endif
 #endif
 
-#if defined(_WIN32) || defined(linux) || defined(__APPLE__)
-#include <stdio.h>
 
-static int logger_format_str(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const char *fmt, va_list ap)
+int simple_logger_format_str(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const char *fmt, va_list ap)
 {
     return vsnprintf(buf, size, fmt, ap);
 }
 
-static int logger_format_bin(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const void *dat, int len)
+int simple_logger_format_bin(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const void *dat, int len)
 {
     int n;
     int offset = 0;
     const unsigned char *p = (const unsigned char *)dat;
 
     // put address
-    offset += snprintf(buf + offset, size - offset, "[%08X] ", (unsigned int)dat);
+    offset += snprintf(buf + offset, size - offset, "[%p] ", dat);
 
     // put hex
     for (n = 0; n < len; ++n)
@@ -57,9 +56,7 @@ int logger_layout_simple_get_size()
 int logger_layout_simple_init(struct LOGGER_LAYOUT *layout)
 {
     memset(layout, 0, sizeof(struct LOGGER_LAYOUT));
-    layout->format_str = logger_format_str;
-    layout->format_bin = logger_format_bin;
+    layout->format_str = simple_logger_format_str;
+    layout->format_bin = simple_logger_format_bin;
     return 0;
 }
-
-#endif

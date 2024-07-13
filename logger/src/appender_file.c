@@ -1,4 +1,4 @@
-#ifdef CONFIG_MODULE_LOGGER_WITH_FILE
+#ifdef CONFIG_LOGGER_WITH_FILE
 #include <stdio.h>
 
 #include "logger/logger.h"
@@ -92,4 +92,4 @@ int logger_appender_file_init(struct LOGGER_APPENDER *appender, const char *path
     return -1;
 }
 
-#endif // CONFIG_MODULE_LOGGER_WITH_FILE
+#endif // CONFIG_LOGGER_WITH_FILE

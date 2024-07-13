@@ -7,6 +7,9 @@
 
 #if defined(_WIN32)
 #define snprintf _snprintf
+#define LOGGER_PATH_SLASH       '\\'
+#else
+#define LOGGER_PATH_SLASH       '/'
 #endif
 
 static char *s_log_levels[] =
@@ -137,7 +140,7 @@ static int logger_format_bin(struct LOGGER_LAYOUT *layout, char *buf, int size, 
     }
 
     // put address
-    ofs += snprintf(buf + ofs, size - ofs, "[%08X] ", (unsigned int)dat);
+    ofs += snprintf(buf + ofs, size - ofs, "[%p] ", dat);
 
     // put hex
     for (n = 0; n < len; ++n)

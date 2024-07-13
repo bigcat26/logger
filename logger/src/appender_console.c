@@ -4,9 +4,7 @@
 #if defined(_WIN32) || defined(linux) || defined(__APPLE__)
 #include <stdio.h>
 
-static struct LOGGER_APPENDER s_appender;
-
-static void logger_writer(struct LOGGER_APPENDER *appender, int level, const char *buf, int len)
+void stdout_logger_writer(struct LOGGER_APPENDER *appender, int level, const char *buf, int len)
 {
     // just ignore the level
     printf("%s", buf);
@@ -20,7 +18,7 @@ int logger_appender_console_get_size(void)
 int logger_appender_console_init(struct LOGGER_APPENDER *appender)
 {
     memset(appender, 0, sizeof(struct LOGGER_APPENDER));
-    appender->writer = logger_writer;
+    appender->writer = stdout_logger_writer;
     appender->level_mask = 0;
     return 0;
 }

@@ -15,7 +15,8 @@
 #define logger_buffer(logger)        ((logger)->cfg.buf)
 #define logger_buffer_size(logger)   ((logger)->cfg.buf_size)
 
-static struct LOGGER *_logger = NULL;
+extern struct LOGGER default_logger;
+static struct LOGGER *_logger = &default_logger;
 
 static void logger_do_cat(struct LOGGER *logger, struct LOGGER_LAYOUT *layout, int level, const char *fmt, va_list ap)
 {

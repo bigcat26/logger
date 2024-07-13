@@ -1,4 +1,4 @@
-#ifdef CONFIG_MODULE_LOGGER_WITH_SYSLOG
+#ifdef CONFIG_LOGGER_WITH_SYSLOG
 
 #include <stdio.h>
 
@@ -59,4 +59,4 @@ int logger_appender_udp_init(struct LOGGER_APPENDER *appender, struct sockaddr *
     return -1;
 }
 
-#endif // CONFIG_MODULE_LOGGER_WITH_SYSLOG
+#endif // CONFIG_LOGGER_WITH_SYSLOG
