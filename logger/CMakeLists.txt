@@ -14,6 +14,7 @@ if (CONFIG_LOGGER_WITH_SYSLOG)
 endif ()
 
 add_library(${PROJECT_NAME} STATIC ${src})
+set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 if(WIN32)
