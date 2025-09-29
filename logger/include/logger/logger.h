@@ -5,77 +5,79 @@
 #include <string.h>
 #include <time.h>
 
+#include "logger/osal.h"
 #include "logger/logger_marcos.h"
 
+#define LOGGER_DEFAULT_LINE_SIZE 1024
 
-struct LOGGER;
-struct LOGGER_APPENDER;
-struct LOGGER_LAYOUT;
+// struct logger_t;
+// struct logger_appender_t;
+// struct logger_layout_t;
 
-typedef void *logger_lock_t;
-typedef time_t (*PFNLOGGER_TIME)(time_t *);
-typedef struct tm *(*PFNLOGGER_LOCALTIME)(const time_t *);
-typedef void (*PFNLOGGER_LOCK_ACQUIRE)(logger_lock_t);
-typedef void (*PFNLOGGER_LOCK_RELEASE)(logger_lock_t);
+// typedef void (*LOGGER_WRITER)(struct logger_appender_t *appender, int level, const char *buf, int len);
 
-struct LOGGER_CFG {
-    char *buf;
-    int buf_size;
-    logger_lock_t lock;
-    PFNLOGGER_TIME syscall_time;
-    PFNLOGGER_LOCALTIME syscall_localtime;
-    PFNLOGGER_LOCK_ACQUIRE acquire_lock;
-    PFNLOGGER_LOCK_RELEASE release_lock;
+// struct logger_filter_t {
+//     struct logger_filter_t *next;
+//     int (*filter)(struct logger_filter_t *filter, int level, const char *buf, int len);
+// }
+
+typedef int (*LOGGER_FORMATTER_STR)(struct logger_layout_t *layout, char *buf, int n, int level, const char *file, unsigned int line, const char *fmt, va_list ap);
+typedef int (*LOGGER_FORMATTER_BIN)(struct logger_layout_t *layout, char *buf, int n, int level, const char *file, unsigned int line, const void *dat, int len);
+
+struct logger_layout_t {
+    LOGGER_FORMATTER_STR format_str;
+    LOGGER_FORMATTER_BIN format_bin;
 };
 
-typedef void (*LOGGER_WRITER)(struct LOGGER_APPENDER *appender, int level, const char *buf, int len);
-
-struct LOGGER_APPENDER {
-    struct LOGGER_APPENDER *next;
-    int level_mask;
+struct logger_appender_t {
+    struct logger_appender_t *next;
+    struct logger_layout_t layout;
+    struct logger_filter_t *filters;
     LOGGER_WRITER writer;
 };
 
-typedef int (*LOGGER_FORMATTER_STR)(struct LOGGER_LAYOUT *layout, char *buf, int n, int level, const char *file, unsigned int line, const char *fmt, va_list ap);
-typedef int (*LOGGER_FORMATTER_BIN)(struct LOGGER_LAYOUT *layout, char *buf, int n, int level, const char *file, unsigned int line, const void *dat, int len);
-
-struct LOGGER_LAYOUT {
-    struct LOGGER *logger;
-    struct LOGGER_LAYOUT *next;
-    LOGGER_FORMATTER_STR format_str;
-    LOGGER_FORMATTER_BIN format_bin;
-    struct LOGGER_APPENDER *appenders;
-};
-
-struct LOGGER {
-    int level_mask;
-    struct LOGGER_CFG cfg;
-    struct LOGGER_LAYOUT *layouts;
+struct logger_t {
+    char *buf;
+    int buf_size;
+    int own_buf;
+    logger_lock_t *lock;
+    struct logger_appender_t *appenders;
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct LOGGER *logger_get_default();
+// struct logger_t *logger_get_default();
 
-void logger_printb(struct LOGGER *logger, int level, const char *file, unsigned int line, const void *buf, int len);
+// void logger_printb(struct logger_t *logger, int level, const char *file, unsigned int line, const void *buf, int len);
 
-void logger_printf(struct LOGGER *logger, int level, const char *file, unsigned int line, const char *fmt, ...);
+// void logger_printf(struct logger_t *logger, int level, const char *file, unsigned int line, const char *fmt, ...);
 
-void logger_catf(struct LOGGER *logger, int level, const char *fmt, ...);
+// void logger_catf(struct logger_t *logger, int level, const char *fmt, ...);
 
-void logger_layout_add_appender(struct LOGGER_LAYOUT *layout, struct LOGGER_APPENDER *appender);
+// void logger_layout_add_appender(struct logger_layout_t *layout, struct logger_appender_t *appender);
 
-void logger_add_layout(struct LOGGER *logger, struct LOGGER_LAYOUT *layout);
+// void logger_add_layout(struct logger_t *logger, struct logger_layout_t *layout);
 
-void logger_set_level_mask(struct LOGGER *logger, int level_mask);
+// void logger_set_level_mask(struct logger_t *logger, int level_mask);
 
-void logger_init(struct LOGGER *logger, struct LOGGER_CFG *cfg);
 
-void logger_set_default(struct LOGGER *logger);
+// void logger_set_default(struct logger_t *logger);
 
-struct LOGGER *logger_get_default();
+// struct logger_t *logger_get_default();
+
+
+int logger_init(struct logger_t *logger, char *buf, int buf_size);
+
+int logger_deinit((struct logger_t *logger);
+
+/**
+ * create global default logger
+ */
+int logger_quick_startup(void);
+
+int logger_quick_cleanup(void);
 
 #ifdef __cplusplus
 };

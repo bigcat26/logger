@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-int logger_appender_udp_init(struct LOGGER_APPENDER *appender, struct sockaddr *addr, int addrlen);
+int logger_appender_udp_init(struct logger_appender_t *appender, struct sockaddr *addr, int addrlen);
 
 int logger_appender_udp_get_size(void);
 

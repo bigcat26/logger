@@ -11,11 +11,11 @@ extern "C"
 #define LOGGER_APPENDER_FILE_CFG_FILE_SIZE_LIMIT    1
 #define LOGGER_APPENDER_FILE_CFG_BACKUP_PATH        2
 
-int logger_appender_file_init(struct LOGGER_APPENDER *appender, const char *path);
+int logger_appender_file_init(struct logger_appender_t *appender, const char *path);
 
-int logger_appender_file_config(struct LOGGER_APPENDER *appender, int cfg, ...);
+int logger_appender_file_config(struct logger_appender_t *appender, int cfg, ...);
 
-int logger_appender_file_deinit(struct LOGGER_APPENDER *appender);
+int logger_appender_file_deinit(struct logger_appender_t *appender);
 
 int logger_appender_file_get_size(void);
 

@@ -15,7 +15,7 @@
 
 struct SYSLOG_LOGGER_LAYOUT
 {
-    struct LOGGER_LAYOUT layout;
+    struct logger_layout_t layout;
     int facility;
     int pid;
     char tag[33];
@@ -86,7 +86,7 @@ static int logger_format_remove_crlf_tail(char *buf, int size)
     return size;
 }
 
-static int logger_format_str(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const char *fmt, va_list ap)
+static int logger_format_str(struct logger_layout_t *layout, char *buf, int size, int level, const char *file, unsigned int line, const char *fmt, va_list ap)
 {
     /* syslog RFC3164 format: <30>Oct 9 22:33:20 hlfedora auditd[1787]: The audit daemon is exiting. */
     int n;
@@ -134,7 +134,7 @@ __exit:
     return ofs;
 }
 
-static int logger_format_bin(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const void *dat, int len)
+static int logger_format_bin(struct logger_layout_t *layout, char *buf, int size, int level, const char *file, unsigned int line, const void *dat, int len)
 {
     int n;
     int ofs = 0;
@@ -195,7 +195,7 @@ int logger_layout_syslog_get_size()
     return sizeof(struct SYSLOG_LOGGER_LAYOUT);
 }
 
-int logger_layout_syslog_init(struct LOGGER_LAYOUT *layout, int facility, const char *tag, int pid)
+int logger_layout_syslog_init(struct logger_layout_t *layout, int facility, const char *tag, int pid)
 {
     struct SYSLOG_LOGGER_LAYOUT *slayout = (struct SYSLOG_LOGGER_LAYOUT *)layout;
     memset(slayout, 0, sizeof(struct SYSLOG_LOGGER_LAYOUT));

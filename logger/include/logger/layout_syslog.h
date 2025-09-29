@@ -43,7 +43,7 @@ extern "C"
 
 int logger_layout_syslog_get_size();
 
-int logger_layout_syslog_init(struct LOGGER_LAYOUT *layout, int facility, const char *tag, int pid);
+int logger_layout_syslog_init(struct logger_layout_t *layout, int facility, const char *tag, int pid);
 
 #ifdef __cplusplus
 }

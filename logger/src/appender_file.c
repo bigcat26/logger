@@ -1,4 +1,4 @@
-#ifdef CONFIG_LOGGER_WITH_FILE
+#ifdef CONFIG_LOGGER_APPENDER_FILE
 #include <stdio.h>
 
 #include "logger/logger.h"
@@ -6,7 +6,7 @@
 
 struct FILE_LOGGER_APPENDER
 {
-    struct LOGGER_APPENDER appender;
+    struct logger_appender_t appender;
     FILE *fp;
     char path[LOGGER_APPENDER_FILE_PATH_MAX + 4];
     char bakpath[LOGGER_APPENDER_FILE_PATH_MAX + 4];
@@ -14,7 +14,7 @@ struct FILE_LOGGER_APPENDER
     unsigned int file_size_limit;
 };
 
-static void logger_writer(struct LOGGER_APPENDER *appender, int level, const char *buf, int len)
+static void logger_writer(struct logger_appender_t *appender, int level, const char *buf, int len)
 {
     struct FILE_LOGGER_APPENDER *fa = (struct FILE_LOGGER_APPENDER *)appender;
     if (fa->file_size_now + len >= fa->file_size_limit) {
@@ -34,7 +34,7 @@ static void logger_writer(struct LOGGER_APPENDER *appender, int level, const cha
     }
 }
 
-int logger_appender_file_config(struct LOGGER_APPENDER *appender, int cfg, ...)
+int logger_appender_file_config(struct logger_appender_t *appender, int cfg, ...)
 {
     int res;
     va_list ap;
@@ -63,7 +63,7 @@ int logger_appender_file_get_size(void)
     return sizeof(struct FILE_LOGGER_APPENDER);
 }
 
-int logger_appender_file_deinit(struct LOGGER_APPENDER *appender)
+int logger_appender_file_deinit(struct logger_appender_t *appender)
 {
     struct FILE_LOGGER_APPENDER *fa = (struct FILE_LOGGER_APPENDER *)appender;
     if (fa->fp != NULL) {
@@ -73,7 +73,7 @@ int logger_appender_file_deinit(struct LOGGER_APPENDER *appender)
     return 0;
 }
 
-int logger_appender_file_init(struct LOGGER_APPENDER *appender, const char *path)
+int logger_appender_file_init(struct logger_appender_t *appender, const char *path)
 {
     struct FILE_LOGGER_APPENDER *fa = (struct FILE_LOGGER_APPENDER *)appender;
     memset(fa, 0, sizeof(struct FILE_LOGGER_APPENDER));
@@ -92,4 +92,4 @@ int logger_appender_file_init(struct LOGGER_APPENDER *appender, const char *path
     return -1;
 }
 
-#endif // CONFIG_LOGGER_WITH_FILE
+#endif // CONFIG_LOGGER_APPENDER_FILE

@@ -7,34 +7,34 @@
 #include "logger/layout_full.h"
 #include "logger/appender_console.h"
 
-static char _logbuf[1024];
-static struct LOGGER _logger;
-static struct LOGGER_LAYOUT _layout;
-static struct LOGGER_APPENDER _appender;
+// static char _logbuf[1024];
+// static struct logger_t _logger;
+// static struct logger_layout_t _layout;
+// static struct logger_appender_t _appender;
 
-#if defined(WIN32)
-static HANDLE _lock;
-#else
-static pthread_mutex_t _lock;
-#endif
+// #if defined(WIN32)
+// static HANDLE _lock;
+// #else
+// static pthread_mutex_t _lock;
+// #endif
 
-void _app_logger_lock_acquire(logger_lock_t lock)
-{
-#if defined(WIN32)
-    WaitForSingleObject((HANDLE)lock, INFINITE);
-#else
-    pthread_mutex_lock((pthread_mutex_t *)lock);
-#endif
-}
+// void _app_logger_lock_acquire(logger_lock_t lock)
+// {
+// #if defined(WIN32)
+//     WaitForSingleObject((HANDLE)lock, INFINITE);
+// #else
+//     pthread_mutex_lock((pthread_mutex_t *)lock);
+// #endif
+// }
 
-void _app_logger_lock_release(logger_lock_t lock)
-{
-#if defined(WIN32)
-    ReleaseMutex((HANDLE)lock);
-#else
-    pthread_mutex_unlock((pthread_mutex_t *)lock);
-#endif
-}
+// void _app_logger_lock_release(logger_lock_t lock)
+// {
+// #if defined(WIN32)
+//     ReleaseMutex((HANDLE)lock);
+// #else
+//     pthread_mutex_unlock((pthread_mutex_t *)lock);
+// #endif
+// }
 
 int main(void)
 {

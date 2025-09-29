@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-int logger_appender_console_init(struct LOGGER_APPENDER *appender);
+int logger_appender_console_init(struct logger_appender_t *appender);
 
 int logger_appender_console_get_size(void);
 

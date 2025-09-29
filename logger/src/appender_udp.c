@@ -1,4 +1,4 @@
-#ifdef CONFIG_LOGGER_WITH_SYSLOG
+#ifdef CONFIG_LOGGER_APPENDER_SYSLOG
 
 #include <stdio.h>
 
@@ -13,13 +13,13 @@
 
 struct UDP_LOGGER_APPENDER
 {
-    struct LOGGER_APPENDER appender;
+    struct logger_appender_t appender;
     int fd;
     int addrlen;
     struct sockaddr addr;
 };
 
-static void logger_writer(struct LOGGER_APPENDER *appender, int level, const char *buf, int len)
+static void logger_writer(struct logger_appender_t *appender, int level, const char *buf, int len)
 {
     struct UDP_LOGGER_APPENDER *ua = (struct UDP_LOGGER_APPENDER *)appender;
     sendto(ua->fd, buf, len, 0, (struct sockaddr *)&ua->addr, ua->addrlen);
@@ -30,7 +30,7 @@ int logger_appender_udp_get_size(void)
     return sizeof(struct UDP_LOGGER_APPENDER);
 }
 
-int logger_appender_udp_deinit(struct LOGGER_APPENDER *appender)
+int logger_appender_udp_deinit(struct logger_appender_t *appender)
 {
     struct UDP_LOGGER_APPENDER *ua = (struct UDP_LOGGER_APPENDER *)appender;
     if (ua->fd >= 0)
@@ -44,7 +44,7 @@ int logger_appender_udp_deinit(struct LOGGER_APPENDER *appender)
     return 0;
 }
 
-int logger_appender_udp_init(struct LOGGER_APPENDER *appender, struct sockaddr *addr, int addrlen)
+int logger_appender_udp_init(struct logger_appender_t *appender, struct sockaddr *addr, int addrlen)
 {
     struct UDP_LOGGER_APPENDER *ua = (struct UDP_LOGGER_APPENDER *)appender;
     memset(ua, 0, sizeof(struct UDP_LOGGER_APPENDER));
@@ -59,4 +59,4 @@ int logger_appender_udp_init(struct LOGGER_APPENDER *appender, struct sockaddr *
     return -1;
 }
 
-#endif // CONFIG_LOGGER_WITH_SYSLOG
+#endif // CONFIG_LOGGER_APPENDER_SYSLOG

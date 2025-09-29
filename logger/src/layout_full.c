@@ -32,7 +32,7 @@ static char logger_level_to_char(int level)
     return logger_level_table[lv - 1];
 }
 
-static int logger_format_str(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const char *fmt, va_list ap)
+static int logger_format_str(struct logger_layout_t *layout, char *buf, int size, int level, const char *file, unsigned int line, const char *fmt, va_list ap)
 {
     int n;
     int lv;
@@ -90,7 +90,7 @@ static int logger_format_str(struct LOGGER_LAYOUT *layout, char *buf, int size, 
     return ofs;
 }
 
-static int logger_format_bin(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const void *dat, int len)
+static int logger_format_bin(struct logger_layout_t *layout, char *buf, int size, int level, const char *file, unsigned int line, const void *dat, int len)
 {
     int n;
     int lv;
@@ -166,12 +166,12 @@ static int logger_format_bin(struct LOGGER_LAYOUT *layout, char *buf, int size, 
 
 int logger_layout_full_get_size()
 {
-    return sizeof(struct LOGGER_LAYOUT);
+    return sizeof(struct logger_layout_t);
 }
 
-int logger_layout_full_init(struct LOGGER_LAYOUT *layout)
+int logger_layout_full_init(struct logger_layout_t *layout)
 {
-    memset(layout, 0, sizeof(struct LOGGER_LAYOUT));
+    memset(layout, 0, sizeof(struct logger_layout_t));
     layout->format_str = logger_format_str;
     layout->format_bin = logger_format_bin;
     return 0;

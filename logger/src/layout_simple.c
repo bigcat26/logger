@@ -12,12 +12,12 @@
 #endif
 
 
-int simple_logger_format_str(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const char *fmt, va_list ap)
+int simple_logger_format_str(struct logger_layout_t *layout, char *buf, int size, int level, const char *file, unsigned int line, const char *fmt, va_list ap)
 {
     return vsnprintf(buf, size, fmt, ap);
 }
 
-int simple_logger_format_bin(struct LOGGER_LAYOUT *layout, char *buf, int size, int level, const char *file, unsigned int line, const void *dat, int len)
+int simple_logger_format_bin(struct logger_layout_t *layout, char *buf, int size, int level, const char *file, unsigned int line, const void *dat, int len)
 {
     int n;
     int offset = 0;
@@ -50,12 +50,12 @@ int simple_logger_format_bin(struct LOGGER_LAYOUT *layout, char *buf, int size, 
 
 int logger_layout_simple_get_size()
 {
-    return sizeof(struct LOGGER_LAYOUT);
+    return sizeof(struct logger_layout_t);
 }
 
-int logger_layout_simple_init(struct LOGGER_LAYOUT *layout)
+int logger_layout_simple_init(struct logger_layout_t *layout)
 {
-    memset(layout, 0, sizeof(struct LOGGER_LAYOUT));
+    memset(layout, 0, sizeof(struct logger_layout_t));
     layout->format_str = simple_logger_format_str;
     layout->format_bin = simple_logger_format_bin;
     return 0;

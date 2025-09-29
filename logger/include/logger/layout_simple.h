@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-struct LOGGER_LAYOUT;
+struct logger_layout_t;
 
 int logger_layout_simple_get_size();
 
-int logger_layout_simple_init(struct LOGGER_LAYOUT *layout);
+int logger_layout_simple_init(struct logger_layout_t *layout);
 
 #ifdef __cplusplus
 }
