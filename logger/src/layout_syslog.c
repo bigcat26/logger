@@ -25,16 +25,16 @@ static int logger_level_to_syslog_severity(int level)
 {
     switch (level) 
     {
-    case LOGGER_LEVEL_VERBOSE:
-    case LOGGER_LEVEL_DEBUG:
+    case LOG_LEVEL_VERBOSE:
+    case LOG_LEVEL_DEBUG:
         return SYSLOG_PRIORITY_DEBUG;
-    case LOGGER_LEVEL_INFO:
+    case LOG_LEVEL_INFO:
         return SYSLOG_PRIORITY_INFO;
-    case LOGGER_LEVEL_WARN:
+    case LOG_LEVEL_WARN:
         return SYSLOG_PRIORITY_WARNING;
-    case LOGGER_LEVEL_ERROR:
+    case LOG_LEVEL_ERROR:
         return SYSLOG_PRIORITY_ERR;
-    case LOGGER_LEVEL_FATAL:
+    case LOG_LEVEL_FATAL:
         return SYSLOG_PRIORITY_EMERG;
     }
     return SYSLOG_PRIORITY_DEBUG;

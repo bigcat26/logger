@@ -26,9 +26,9 @@ static char logger_level_to_char(int level)
 {
     int lv;
     static char logger_level_table[] = "VDIWEF";
-    lv = level & LOGGER_LEVEL_MASK;
-    lv = lv > LOGGER_LEVEL_FATAL ? LOGGER_LEVEL_FATAL : lv;
-    lv = lv < LOGGER_LEVEL_VERBOSE ? LOGGER_LEVEL_VERBOSE : lv;
+    lv = level & LOG_LEVEL_MASK;
+    lv = lv > LOG_LEVEL_FATAL ? LOG_LEVEL_FATAL : lv;
+    lv = lv < LOG_LEVEL_VERBOSE ? LOG_LEVEL_VERBOSE : lv;
     return logger_level_table[lv - 1];
 }
 
@@ -53,9 +53,9 @@ static int logger_format_str(struct logger_layout_t *layout, char *buf, int size
     }
 
     // level
-    lv = level & LOGGER_LEVEL_MASK;
-    lv = lv > LOGGER_LEVEL_FATAL ? LOGGER_LEVEL_FATAL : lv;
-    lv = lv < LOGGER_LEVEL_VERBOSE ? LOGGER_LEVEL_VERBOSE : lv;
+    lv = level & LOG_LEVEL_MASK;
+    lv = lv > LOG_LEVEL_FATAL ? LOG_LEVEL_FATAL : lv;
+    lv = lv < LOG_LEVEL_VERBOSE ? LOG_LEVEL_VERBOSE : lv;
     lv -= 1;
     n = snprintf(buf + ofs, size - ofs, "%s|", s_log_levels[lv]);
 
@@ -109,9 +109,9 @@ static int logger_format_bin(struct logger_layout_t *layout, char *buf, int size
     }
 
     // level
-    lv = level & LOGGER_LEVEL_MASK;
-    lv = lv > LOGGER_LEVEL_FATAL ? LOGGER_LEVEL_FATAL : lv;
-    lv = lv < LOGGER_LEVEL_VERBOSE ? LOGGER_LEVEL_VERBOSE : lv;
+    lv = level & LOG_LEVEL_MASK;
+    lv = lv > LOG_LEVEL_FATAL ? LOG_LEVEL_FATAL : lv;
+    lv = lv < LOG_LEVEL_VERBOSE ? LOG_LEVEL_VERBOSE : lv;
     lv -= 1;
     n = snprintf(buf + ofs, size - ofs, "%s|", s_log_levels[lv]);
     if (n > 0) {

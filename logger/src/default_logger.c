@@ -21,7 +21,7 @@ static struct logger_layout_t default_logger_layout = {
     &console_appender};
 
 struct logger_t default_logger = {
-    LOGGER_LEVEL_ALL,
+    LOG_LEVEL_ALL,
     {
         default_logger_buffer,
         sizeof(default_logger_buffer),
