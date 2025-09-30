@@ -1,0 +1,80 @@
+{
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "debug",
+            "displayName": "debug build",
+            "description": "build with gcc(debug)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/.build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CONFIG_MODULE_LOGGER_BUILD_EXAMPLE": "ON"
+            }
+        },
+        {
+            "name": "clang-debug",
+            "displayName": "debug build",
+            "description": "build with clang(clang-debug)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/.build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CONFIG_MODULE_LOGGER_BUILD_EXAMPLE": "ON"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "release build",
+            "description": "build with gcc(release)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/.build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CONFIG_MODULE_LOGGER_BUILD_EXAMPLE": "OFF"
+            }
+        },
+        {
+            "name": "clang-release",
+            "displayName": "release build",
+            "description": "build with clang(clang-release)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/.build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CONFIG_MODULE_LOGGER_BUILD_EXAMPLE": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug"
+        },
+        {
+            "name": "clang-debug",
+            "configurePreset": "clang-debug"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        },
+        {
+            "name": "clang-release",
+            "configurePreset": "clang-release"
+        }
+    ]
+}

@@ -392,7 +392,7 @@ static int logger_event_create(struct logger_event_t *event, log_level_t level,
     event->func = func;
     event->data = data;
     event->msg_len = data_len;
-    event->timestamp_ns = 0;
+    event->timestamp_ns = logger_get_timestamp_ns();
     event->tid = 0;
     
     return 0;

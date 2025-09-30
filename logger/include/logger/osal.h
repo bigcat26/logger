@@ -1,6 +1,8 @@
 #ifndef __LOGGER_OSAL_H__
 #define __LOGGER_OSAL_H__
 
+#include <stdint.h>
+
 typedef void logger_lock_t;
 
 typedef struct logger_time {
@@ -24,6 +26,6 @@ void logger_lock_release(logger_lock_t *lock);
 
 void logger_lock_free(logger_lock_t **lock);
 
-logger_time_t logger_gettime();
+uint64_t logger_get_timestamp_ns();
 
 #endif

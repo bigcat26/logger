@@ -45,40 +45,6 @@ void logger_lock_free(logger_lock_t **lock) {
     }
 }
 
-logger_time_t logger_gettime() {
-    time_t now = time(NULL);
-    struct tm tm;
-    
-#ifdef __APPLE__
-    // macOS 使用 localtime_r 可能有问题，使用 localtime 并复制结构体
-    struct tm *tm_ptr = localtime(&now);
-    if (tm_ptr) {
-        tm = *tm_ptr;
-    } else {
-        // 如果获取时间失败，返回默认时间
-        tm.tm_year = 70;  // 1970
-        tm.tm_mon = 0;    // 1月
-        tm.tm_mday = 1;
-        tm.tm_hour = 0;
-        tm.tm_min = 0;
-        tm.tm_sec = 0;
-    }
-#else
-    // Linux 和其他 POSIX 系统使用 localtime_r
-    localtime_r(&now, &tm);
-#endif
-    
-    logger_time_t time = {
-        .year = tm.tm_year + 1900,
-        .month = tm.tm_mon + 1,
-        .day = tm.tm_mday,
-        .hour = tm.tm_hour,
-        .minute = tm.tm_min,
-        .second = tm.tm_sec,
-    };
-    return time;
-}
-
 uint64_t logger_get_timestamp_ns() {
     struct timespec ts;
 #ifdef __APPLE__
