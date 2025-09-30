@@ -278,7 +278,7 @@ int logger_catf(logger_t *logger, log_level_t level, const char *format, ...) {
 }
 
 int logger_printb(logger_t *logger, log_level_t level, const char *file,
-                  unsigned int line, const char *func, const void *data, int len) {
+                  unsigned int line, const char *func, const void *data, size_t len) {
     if (!data || len <= 0) {
         return -1;
     }

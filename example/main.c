@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include "logger/logger.h"
-#include "logger/logger_marcos.h"
 
 int main(void) {
     printf("=== Logger库功能演示 ===\n");

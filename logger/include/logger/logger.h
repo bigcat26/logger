@@ -9,7 +9,7 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
-#include "logger/logger_marcos.h"
+/* 注意：logger_marcos.h 需要单独包含以避免循环依赖 */
 #include "logger/osal.h"
 
 /* Configuration macros */
@@ -18,7 +18,7 @@ extern "C" {
 #define LOGGER_MAX_APPENDERS      16
 #define LOGGER_MAX_FILTERS        8
 
-/* Log levels enumeration */
+/* Log levels enumeration - 与 logger_marcos.h 中的常量保持一致 */
 typedef enum {
   LOG_LEVEL_VERBOSE = 0,  /**< Verbose level - most detailed logging */
   LOG_LEVEL_DEBUG,         /**< Debug level - debugging information */
@@ -346,7 +346,7 @@ int logger_catf(logger_t *logger, log_level_t level, const char *format, ...);
  * @return 0 on success, negative value on error
  */
 int logger_printb(logger_t *logger, log_level_t level, const char *file,
-                  unsigned int line, const char *func, const void *data, int len);
+                  unsigned int line, const char *func, const void *data, size_t len);
 
 /* Utility API */
 
@@ -385,6 +385,253 @@ const char *logger_level_to_string(log_level_t level);
  * @return Log level, LOG_LEVEL_INFO if parsing fails
  */
 log_level_t logger_string_to_level(const char *str);
+
+/* ============================================================================
+ * LOG MACROS - 日志宏定义
+ * ============================================================================ */
+
+#define LOG_LEVEL_MASK           (0x00000007)
+#define LOG_LEVEL_ALL            (0xFFFFFFFF)
+
+#if defined(__UCOS__) || defined(__FH8610__) || defined(cc3200)
+#define LOGGER_ENDL                 "\r\n"
+#else
+#define LOGGER_ENDL                 "\n"
+#endif
+
+#define LOGGER_NONE                 "\e[0m"
+#define LOGGER_BLACK                "\e[0;30m"
+#define LOGGER_L_BLACK              "\e[1;30m"
+#define LOGGER_RED                  "\e[0;31m"
+#define LOGGER_L_RED                "\e[1;31m"
+#define LOGGER_GREEN                "\e[0;32m"
+#define LOGGER_L_GREEN              "\e[1;32m"
+#define LOGGER_BROWN                "\e[0;33m"
+#define LOGGER_YELLOW               "\e[1;33m"
+#define LOGGER_BLUE                 "\e[0;34m"
+#define LOGGER_L_BLUE               "\e[1;34m"
+#define LOGGER_PURPLE               "\e[0;35m"
+#define LOGGER_L_PURPLE             "\e[1;35m"
+#define LOGGER_CYAN                 "\e[0;36m"
+#define LOGGER_L_CYAN               "\e[1;36m"
+#define LOGGER_GRAY                 "\e[0;37m"
+#define LOGGER_WHITE                "\e[1;37m"
+
+#define LOGGER_BOLD                 "\e[1m"
+#define LOGGER_UNDERLINE            "\e[4m"
+#define LOGGER_BLINK                "\e[5m"
+#define LOGGER_REVERSE              "\e[7m"
+#define LOGGER_HIDE                 "\e[8m"
+#define LOGGER_CLEAR                "\e[2J"
+#define LOGGER_CLRLINE              "\r\e[K"
+
+/* 基础宏定义 - 支持不同编译器 */
+#if defined(_MSC_VER)
+#define LOG(level, fmt, ...)        logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+#define LOGL(level, fmt, ...)       logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, fmt LOGGER_ENDL, __VA_ARGS__)
+#define LOGC(level, fmt, ...)       logger_catf(logger_get_default_logger(), level, fmt, __VA_ARGS__)
+#define LOGT(level, tag, fmt, ...)  logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, "[" tag "] " fmt, __VA_ARGS__)
+#define LOGTL(level, tag, fmt, ...) logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, "[" tag "] " fmt LOGGER_ENDL, __VA_ARGS__)
+#define LOGTC(level, tag, fmt, ...) logger_catf(logger_get_default_logger(), level, "[" tag "] " fmt, __VA_ARGS__)
+#else
+#define LOG(level, fmt, args...)    logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, fmt, ##args)
+#define LOGL(level, fmt, args...)  logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, fmt LOGGER_ENDL, ##args)
+#define LOGC(level, fmt, args...)  logger_catf(logger_get_default_logger(), level, fmt, ##args)
+#define LOGT(level, tag, fmt, args...) logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, "[" tag "] " fmt, ##args)
+#define LOGTL(level, tag, fmt, args...) logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, "[" tag "] " fmt LOGGER_ENDL, ##args)
+#define LOGTC(level, tag, fmt, args...) logger_catf(logger_get_default_logger(), level, "[" tag "] " fmt, ##args)
+#endif
+
+/* 二进制数据日志宏 */
+#define LOGB(level, dat, len)       logger_printb(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, dat, len)
+#define LOGBT(level, tag, dat, len) logger_printb(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, dat, len)
+
+/* 标准日志宏 */
+#if defined(_MSC_VER)
+#define LOGF(fmt, ...)              LOG(LOG_LEVEL_FATAL,    fmt, __VA_ARGS__)
+#define LOGE(fmt, ...)              LOG(LOG_LEVEL_ERROR,    fmt, __VA_ARGS__)
+#define LOGW(fmt, ...)              LOG(LOG_LEVEL_WARN,     fmt, __VA_ARGS__)
+#define LOGI(fmt, ...)              LOG(LOG_LEVEL_INFO,     fmt, __VA_ARGS__)
+#define LOGD(fmt, ...)              LOG(LOG_LEVEL_DEBUG,    fmt, __VA_ARGS__)
+#define LOGV(fmt, ...)              LOG(LOG_LEVEL_VERBOSE,  fmt, __VA_ARGS__)
+#define LOGLF(fmt, ...)             LOGL(LOG_LEVEL_FATAL,   fmt, __VA_ARGS__)
+#define LOGLE(fmt, ...)             LOGL(LOG_LEVEL_ERROR,   fmt, __VA_ARGS__)
+#define LOGLW(fmt, ...)             LOGL(LOG_LEVEL_WARN,    fmt, __VA_ARGS__)
+#define LOGLI(fmt, ...)             LOGL(LOG_LEVEL_INFO,    fmt, __VA_ARGS__)
+#define LOGLD(fmt, ...)             LOGL(LOG_LEVEL_DEBUG,   fmt, __VA_ARGS__)
+#define LOGLV(fmt, ...)             LOGL(LOG_LEVEL_VERBOSE, fmt, __VA_ARGS__)
+#define LOGCF(fmt, ...)             LOGC(LOG_LEVEL_FATAL,   fmt, __VA_ARGS__)
+#define LOGCE(fmt, ...)             LOGC(LOG_LEVEL_ERROR,   fmt, __VA_ARGS__)
+#define LOGCW(fmt, ...)             LOGC(LOG_LEVEL_WARN,    fmt, __VA_ARGS__)
+#define LOGCI(fmt, ...)             LOGC(LOG_LEVEL_INFO,    fmt, __VA_ARGS__)
+#define LOGCD(fmt, ...)             LOGC(LOG_LEVEL_DEBUG,   fmt, __VA_ARGS__)
+#define LOGCV(fmt, ...)             LOGC(LOG_LEVEL_VERBOSE, fmt, __VA_ARGS__)
+
+/* 带 tag 的日志宏 */
+#define LOGTF(tag, fmt, ...)        LOGT(LOG_LEVEL_FATAL,   tag, fmt, __VA_ARGS__)
+#define LOGTE(tag, fmt, ...)        LOGT(LOG_LEVEL_ERROR,   tag, fmt, __VA_ARGS__)
+#define LOGTW(tag, fmt, ...)        LOGT(LOG_LEVEL_WARN,    tag, fmt, __VA_ARGS__)
+#define LOGTI(tag, fmt, ...)        LOGT(LOG_LEVEL_INFO,    tag, fmt, __VA_ARGS__)
+#define LOGTD(tag, fmt, ...)        LOGT(LOG_LEVEL_DEBUG,   tag, fmt, __VA_ARGS__)
+#define LOGTV(tag, fmt, ...)        LOGT(LOG_LEVEL_VERBOSE, tag, fmt, __VA_ARGS__)
+#define LOGTLF(tag, fmt, ...)       LOGTL(LOG_LEVEL_FATAL,  tag, fmt, __VA_ARGS__)
+#define LOGTLE(tag, fmt, ...)       LOGTL(LOG_LEVEL_ERROR,  tag, fmt, __VA_ARGS__)
+#define LOGTLW(tag, fmt, ...)       LOGTL(LOG_LEVEL_WARN,   tag, fmt, __VA_ARGS__)
+#define LOGTLI(tag, fmt, ...)       LOGTL(LOG_LEVEL_INFO,   tag, fmt, __VA_ARGS__)
+#define LOGTLD(tag, fmt, ...)       LOGTL(LOG_LEVEL_DEBUG,  tag, fmt, __VA_ARGS__)
+#define LOGTLV(tag, fmt, ...)       LOGTL(LOG_LEVEL_VERBOSE,tag, fmt, __VA_ARGS__)
+#define LOGTCF(tag, fmt, ...)       LOGTC(LOG_LEVEL_FATAL,  tag, fmt, __VA_ARGS__)
+#define LOGTCE(tag, fmt, ...)       LOGTC(LOG_LEVEL_ERROR,  tag, fmt, __VA_ARGS__)
+#define LOGTCW(tag, fmt, ...)       LOGTC(LOG_LEVEL_WARN,   tag, fmt, __VA_ARGS__)
+#define LOGTCI(tag, fmt, ...)       LOGTC(LOG_LEVEL_INFO,   tag, fmt, __VA_ARGS__)
+#define LOGTCD(tag, fmt, ...)       LOGTC(LOG_LEVEL_DEBUG,  tag, fmt, __VA_ARGS__)
+#define LOGTCV(tag, fmt, ...)       LOGTC(LOG_LEVEL_VERBOSE,tag, fmt, __VA_ARGS__)
+
+/* 二进制数据日志宏 */
+#define LOGBF(dat, len)             LOGB(LOG_LEVEL_FATAL,   dat, len)
+#define LOGBE(dat, len)             LOGB(LOG_LEVEL_ERROR,   dat, len)
+#define LOGBW(dat, len)             LOGB(LOG_LEVEL_WARN,    dat, len)
+#define LOGBI(dat, len)             LOGB(LOG_LEVEL_INFO,    dat, len)
+#define LOGBD(dat, len)             LOGB(LOG_LEVEL_DEBUG,   dat, len)
+#define LOGBV(dat, len)             LOGB(LOG_LEVEL_VERBOSE, dat, len)
+#define LOGBTF(tag, dat, len)       LOGBT(LOG_LEVEL_FATAL,  tag, dat, len)
+#define LOGBTE(tag, dat, len)       LOGBT(LOG_LEVEL_ERROR,  tag, dat, len)
+#define LOGBTW(tag, dat, len)       LOGBT(LOG_LEVEL_WARN,   tag, dat, len)
+#define LOGBTI(tag, dat, len)       LOGBT(LOG_LEVEL_INFO,   tag, dat, len)
+#define LOGBTD(tag, dat, len)       LOGBT(LOG_LEVEL_DEBUG,  tag, dat, len)
+#define LOGBTV(tag, dat, len)       LOGBT(LOG_LEVEL_VERBOSE,tag, dat, len)
+
+#elif defined(__FH8610__) || defined(__UCOS__)
+
+// workaround macros for hcac compiler
+#define _LOGF(fmt, args...)         LOG(LOG_LEVEL_FATAL,    fmt, ##args)
+#define _LOGE(fmt, args...)         LOG(LOG_LEVEL_ERROR,    fmt, ##args)
+#define _LOGW(fmt, args...)         LOG(LOG_LEVEL_WARN,     fmt, ##args)
+#define _LOGI(fmt, args...)         LOG(LOG_LEVEL_INFO,     fmt, ##args)
+#define _LOGD(fmt, args...)         LOG(LOG_LEVEL_DEBUG,    fmt, ##args)
+#define _LOGV(fmt, args...)         LOG(LOG_LEVEL_VERBOSE,  fmt, ##args)
+#define _LOGLF(fmt, args...)        LOGL(LOG_LEVEL_FATAL,   fmt, ##args)
+#define _LOGLE(fmt, args...)        LOGL(LOG_LEVEL_ERROR,   fmt, ##args)
+#define _LOGLW(fmt, args...)        LOGL(LOG_LEVEL_WARN,    fmt, ##args)
+#define _LOGLI(fmt, args...)        LOGL(LOG_LEVEL_INFO,    fmt, ##args)
+#define _LOGLD(fmt, args...)        LOGL(LOG_LEVEL_DEBUG,   fmt, ##args)
+#define _LOGLV(fmt, args...)        LOGL(LOG_LEVEL_VERBOSE, fmt, ##args)
+#define _LOGCF(fmt, args...)        LOGC(LOG_LEVEL_FATAL,   fmt, ##args)
+#define _LOGCE(fmt, args...)        LOGC(LOG_LEVEL_ERROR,   fmt, ##args)
+#define _LOGCW(fmt, args...)        LOGC(LOG_LEVEL_WARN,    fmt, ##args)
+#define _LOGCI(fmt, args...)        LOGC(LOG_LEVEL_INFO,    fmt, ##args)
+#define _LOGCD(fmt, args...)        LOGC(LOG_LEVEL_DEBUG,   fmt, ##args)
+#define _LOGCV(fmt, args...)        LOGC(LOG_LEVEL_VERBOSE, fmt, ##args)
+
+#define LOGF(args...)               _LOGF(##args, "")
+#define LOGE(args...)               _LOGE(##args, "")
+#define LOGW(args...)               _LOGW(##args, "")
+#define LOGI(args...)               _LOGI(##args, "")
+#define LOGD(args...)               _LOGD(##args, "")
+#define LOGV(args...)               _LOGV(##args, "")
+#define LOGLF(args...)              _LOGLF(##args, "")
+#define LOGLE(args...)              _LOGLE(##args, "")
+#define LOGLW(args...)              _LOGLW(##args, "")
+#define LOGLI(args...)              _LOGLI(##args, "")
+#define LOGLD(args...)              _LOGLD(##args, "")
+#define LOGLV(args...)              _LOGLV(##args, "")
+#define LOGCF(args...)              _LOGCF(##args, "")
+#define LOGCE(args...)              _LOGCE(##args, "")
+#define LOGCW(args...)              _LOGCW(##args, "")
+#define LOGCI(args...)              _LOGCI(##args, "")
+#define LOGCD(args...)              _LOGCD(##args, "")
+#define LOGCV(args...)              _LOGCV(##args, "")
+
+/* 带 tag 的日志宏 */
+#define LOGTF(tag, fmt, args...)    LOGT(LOG_LEVEL_FATAL,   tag, fmt, ##args)
+#define LOGTE(tag, fmt, args...)    LOGT(LOG_LEVEL_ERROR,   tag, fmt, ##args)
+#define LOGTW(tag, fmt, args...)    LOGT(LOG_LEVEL_WARN,    tag, fmt, ##args)
+#define LOGTI(tag, fmt, args...)    LOGT(LOG_LEVEL_INFO,    tag, fmt, ##args)
+#define LOGTD(tag, fmt, args...)    LOGT(LOG_LEVEL_DEBUG,   tag, fmt, ##args)
+#define LOGTV(tag, fmt, args...)    LOGT(LOG_LEVEL_VERBOSE, tag, fmt, ##args)
+#define LOGTLF(tag, fmt, args...)   LOGTL(LOG_LEVEL_FATAL,  tag, fmt, ##args)
+#define LOGTLE(tag, fmt, args...)   LOGTL(LOG_LEVEL_ERROR,  tag, fmt, ##args)
+#define LOGTLW(tag, fmt, args...)   LOGTL(LOG_LEVEL_WARN,   tag, fmt, ##args)
+#define LOGTLI(tag, fmt, args...)   LOGTL(LOG_LEVEL_INFO,   tag, fmt, ##args)
+#define LOGTLD(tag, fmt, args...)   LOGTL(LOG_LEVEL_DEBUG,  tag, fmt, ##args)
+#define LOGTLV(tag, fmt, args...)   LOGTL(LOG_LEVEL_VERBOSE,tag, fmt, ##args)
+#define LOGTCF(tag, fmt, args...)   LOGTC(LOG_LEVEL_FATAL,  tag, fmt, ##args)
+#define LOGTCE(tag, fmt, args...)   LOGTC(LOG_LEVEL_ERROR,  tag, fmt, ##args)
+#define LOGTCW(tag, fmt, args...)   LOGTC(LOG_LEVEL_WARN,   tag, fmt, ##args)
+#define LOGTCI(tag, fmt, args...)   LOGTC(LOG_LEVEL_INFO,   tag, fmt, ##args)
+#define LOGTCD(tag, fmt, args...)   LOGTC(LOG_LEVEL_DEBUG,  tag, fmt, ##args)
+#define LOGTCV(tag, fmt, args...)   LOGTC(LOG_LEVEL_VERBOSE,tag, fmt, ##args)
+
+/* 二进制数据日志宏 */
+#define LOGBF(dat, len)             LOGB(LOG_LEVEL_FATAL,   dat, len)
+#define LOGBE(dat, len)             LOGB(LOG_LEVEL_ERROR,   dat, len)
+#define LOGBW(dat, len)             LOGB(LOG_LEVEL_WARN,    dat, len)
+#define LOGBI(dat, len)             LOGB(LOG_LEVEL_INFO,    dat, len)
+#define LOGBD(dat, len)             LOGB(LOG_LEVEL_DEBUG,   dat, len)
+#define LOGBV(dat, len)             LOGB(LOG_LEVEL_VERBOSE, dat, len)
+#define LOGBTF(tag, dat, len)       LOGBT(LOG_LEVEL_FATAL,  tag, dat, len)
+#define LOGBTE(tag, dat, len)       LOGBT(LOG_LEVEL_ERROR,  tag, dat, len)
+#define LOGBTW(tag, dat, len)       LOGBT(LOG_LEVEL_WARN,   tag, dat, len)
+#define LOGBTI(tag, dat, len)       LOGBT(LOG_LEVEL_INFO,   tag, dat, len)
+#define LOGBTD(tag, dat, len)       LOGBT(LOG_LEVEL_DEBUG,  tag, dat, len)
+#define LOGBTV(tag, dat, len)       LOGBT(LOG_LEVEL_VERBOSE,tag, dat, len)
+
+#else // GCC/Clang
+
+#define LOGF(fmt, args...)          LOG(LOG_LEVEL_FATAL,    fmt, ##args)
+#define LOGE(fmt, args...)          LOG(LOG_LEVEL_ERROR,    fmt, ##args)
+#define LOGW(fmt, args...)          LOG(LOG_LEVEL_WARN,     fmt, ##args)
+#define LOGI(fmt, args...)          LOG(LOG_LEVEL_INFO,     fmt, ##args)
+#define LOGD(fmt, args...)          LOG(LOG_LEVEL_DEBUG,    fmt, ##args)
+#define LOGV(fmt, args...)          LOG(LOG_LEVEL_VERBOSE,  fmt, ##args)
+#define LOGLF(fmt, args...)         LOGL(LOG_LEVEL_FATAL,   fmt, ##args)
+#define LOGLE(fmt, args...)         LOGL(LOG_LEVEL_ERROR,   fmt, ##args)
+#define LOGLW(fmt, args...)         LOGL(LOG_LEVEL_WARN,    fmt, ##args)
+#define LOGLI(fmt, args...)         LOGL(LOG_LEVEL_INFO,    fmt, ##args)
+#define LOGLD(fmt, args...)         LOGL(LOG_LEVEL_DEBUG,   fmt, ##args)
+#define LOGLV(fmt, args...)         LOGL(LOG_LEVEL_VERBOSE, fmt, ##args)
+#define LOGCF(fmt, args...)         LOGC(LOG_LEVEL_FATAL,   fmt, ##args)
+#define LOGCE(fmt, args...)         LOGC(LOG_LEVEL_ERROR,   fmt, ##args)
+#define LOGCW(fmt, args...)         LOGC(LOG_LEVEL_WARN,    fmt, ##args)
+#define LOGCI(fmt, args...)         LOGC(LOG_LEVEL_INFO,    fmt, ##args)
+#define LOGCD(fmt, args...)         LOGC(LOG_LEVEL_DEBUG,   fmt, ##args)
+#define LOGCV(fmt, args...)         LOGC(LOG_LEVEL_VERBOSE, fmt, ##args)
+
+/* 带 tag 的日志宏 */
+#define LOGTF(tag, fmt, args...)    LOGT(LOG_LEVEL_FATAL,   tag, fmt, ##args)
+#define LOGTE(tag, fmt, args...)    LOGT(LOG_LEVEL_ERROR,   tag, fmt, ##args)
+#define LOGTW(tag, fmt, args...)    LOGT(LOG_LEVEL_WARN,    tag, fmt, ##args)
+#define LOGTI(tag, fmt, args...)    LOGT(LOG_LEVEL_INFO,    tag, fmt, ##args)
+#define LOGTD(tag, fmt, args...)    LOGT(LOG_LEVEL_DEBUG,   tag, fmt, ##args)
+#define LOGTV(tag, fmt, args...)    LOGT(LOG_LEVEL_VERBOSE, tag, fmt, ##args)
+#define LOGTLF(tag, fmt, args...)   LOGTL(LOG_LEVEL_FATAL,  tag, fmt, ##args)
+#define LOGTLE(tag, fmt, args...)   LOGTL(LOG_LEVEL_ERROR,  tag, fmt, ##args)
+#define LOGTLW(tag, fmt, args...)   LOGTL(LOG_LEVEL_WARN,   tag, fmt, ##args)
+#define LOGTLI(tag, fmt, args...)   LOGTL(LOG_LEVEL_INFO,   tag, fmt, ##args)
+#define LOGTLD(tag, fmt, args...)   LOGTL(LOG_LEVEL_DEBUG,  tag, fmt, ##args)
+#define LOGTLV(tag, fmt, args...)   LOGTL(LOG_LEVEL_VERBOSE,tag, fmt, ##args)
+#define LOGTCF(tag, fmt, args...)   LOGTC(LOG_LEVEL_FATAL,  tag, fmt, ##args)
+#define LOGTCE(tag, fmt, args...)   LOGTC(LOG_LEVEL_ERROR,  tag, fmt, ##args)
+#define LOGTCW(tag, fmt, args...)   LOGTC(LOG_LEVEL_WARN,   tag, fmt, ##args)
+#define LOGTCI(tag, fmt, args...)   LOGTC(LOG_LEVEL_INFO,   tag, fmt, ##args)
+#define LOGTCD(tag, fmt, args...)   LOGTC(LOG_LEVEL_DEBUG,  tag, fmt, ##args)
+#define LOGTCV(tag, fmt, args...)   LOGTC(LOG_LEVEL_VERBOSE,tag, fmt, ##args)
+
+/* 二进制数据日志宏 */
+#define LOGBF(dat, len)             LOGB(LOG_LEVEL_FATAL,   dat, len)
+#define LOGBE(dat, len)             LOGB(LOG_LEVEL_ERROR,   dat, len)
+#define LOGBW(dat, len)             LOGB(LOG_LEVEL_WARN,    dat, len)
+#define LOGBI(dat, len)             LOGB(LOG_LEVEL_INFO,    dat, len)
+#define LOGBD(dat, len)             LOGB(LOG_LEVEL_DEBUG,   dat, len)
+#define LOGBV(dat, len)             LOGB(LOG_LEVEL_VERBOSE, dat, len)
+#define LOGBTF(tag, dat, len)       LOGBT(LOG_LEVEL_FATAL,  tag, dat, len)
+#define LOGBTE(tag, dat, len)       LOGBT(LOG_LEVEL_ERROR,  tag, dat, len)
+#define LOGBTW(tag, dat, len)       LOGBT(LOG_LEVEL_WARN,   tag, dat, len)
+#define LOGBTI(tag, dat, len)       LOGBT(LOG_LEVEL_INFO,   tag, dat, len)
+#define LOGBTD(tag, dat, len)       LOGBT(LOG_LEVEL_DEBUG,  tag, dat, len)
+#define LOGBTV(tag, dat, len)       LOGBT(LOG_LEVEL_VERBOSE,tag, dat, len)
+
+#endif // 编译器选择
 
 #ifdef __cplusplus
 }
