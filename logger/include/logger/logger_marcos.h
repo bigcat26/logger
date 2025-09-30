@@ -37,16 +37,16 @@
 #define LOGGER_CLRLINE              "\r\e[K"
 
 #if defined(_MSC_VER)
-#define LOG(level, fmt, ...)        logger_printf(logger_get_default(), level, __FILE__, __LINE__, fmt, __VA_ARGS__)
-#define LOGL(level, fmt, ...)       logger_printf(logger_get_default(), level, __FILE__, __LINE__, fmt LOGGER_ENDL, __VA_ARGS__)
-#define LOGC(level, fmt, ...)       logger_catf(logger_get_default(), level, fmt, __VA_ARGS__)
+#define LOG(level, fmt, ...)        logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+#define LOGL(level, fmt, ...)       logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, fmt LOGGER_ENDL, __VA_ARGS__)
+#define LOGC(level, fmt, ...)       logger_catf(logger_get_default_logger(), level, fmt, __VA_ARGS__)
 #else
-#define LOG(level, fmt, args...)    logger_printf(logger_get_default(), level, __FILE__, __LINE__, fmt, ##args)
-#define LOGL(level, fmt, args...)   logger_printf(logger_get_default(), level, __FILE__, __LINE__, fmt LOGGER_ENDL, ##args)
-#define LOGC(level, fmt, args...)   logger_catf(logger_get_default(), level, fmt, ##args)
+#define LOG(level, fmt, args...)    logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, fmt, ##args)
+#define LOGL(level, fmt, args...)   logger_printf(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, fmt LOGGER_ENDL, ##args)
+#define LOGC(level, fmt, args...)   logger_catf(logger_get_default_logger(), level, fmt, ##args)
 #endif
 
-#define LOGB(level, dat, len)       logger_printb(logger_get_default(), level, __FILE__, __LINE__, dat, len);
+#define LOGB(level, dat, len)       logger_printb(logger_get_default_logger(), level, __FILE__, __LINE__, __FUNCTION__, dat, len);
 #define LOGBV(dat, len)             LOGB(LOG_LEVEL_VERBOSE, dat, len)
 #define LOGBD(dat, len)             LOGB(LOG_LEVEL_DEBUG,   dat, len)
 #define LOGBI(dat, len)             LOGB(LOG_LEVEL_INFO,    dat, len)

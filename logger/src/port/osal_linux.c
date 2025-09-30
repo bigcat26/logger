@@ -35,8 +35,12 @@ void logger_lock_release(logger_lock_t *lock) {
 }
 
 void logger_lock_free(logger_lock_t **lock) {
-    free(*lock);
-    *lock = NULL;
+    if (*lock) {
+        pthread_mutex_t *mutex = (pthread_mutex_t *)*lock;
+        pthread_mutex_destroy(mutex);
+        free(*lock);
+        *lock = NULL;
+    }
 }
 
 logger_time_t logger_gettime() {

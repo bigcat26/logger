@@ -4,10 +4,17 @@
 #if defined(_WIN32) || defined(linux) || defined(__APPLE__)
 #include <stdio.h>
 
-void stdout_logger_writer(struct logger_appender_t *appender, int level, const char *buf, int len)
+int stdout_logger_writer(struct logger_appender_t *appender, const struct logger_event_t *event)
 {
-    // just ignore the level
-    printf("%s", buf);
+    if (!appender || !event) {
+        return -1;
+    }
+    
+    /* Simple implementation - just print the message */
+    printf("%s", event->data);
+    fflush(stdout);
+    
+    return event->msg_len;
 }
 
 int logger_appender_console_get_size(void)
@@ -18,8 +25,7 @@ int logger_appender_console_get_size(void)
 int logger_appender_console_init(struct logger_appender_t *appender)
 {
     memset(appender, 0, sizeof(struct logger_appender_t));
-    appender->writer = stdout_logger_writer;
-    appender->level_mask = 0;
+    appender->write = stdout_logger_writer;
     return 0;
 }
 

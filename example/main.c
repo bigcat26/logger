@@ -1,75 +1,68 @@
-#if defined(WIN32)
-#include <windows.h>
-#else
-#include <pthread.h>
-#endif
+/*
+ * Logger库使用示例
+ * 展示如何使用重新设计的API接口
+ */
+
+#include <stdio.h>
 #include "logger/logger.h"
-#include "logger/layout_full.h"
-#include "logger/appender_console.h"
+#include "logger/logger_marcos.h"
 
-// static char _logbuf[1024];
-// static struct logger_t _logger;
-// static struct logger_layout_t _layout;
-// static struct logger_appender_t _appender;
-
-// #if defined(WIN32)
-// static HANDLE _lock;
-// #else
-// static pthread_mutex_t _lock;
-// #endif
-
-// void _app_logger_lock_acquire(logger_lock_t lock)
-// {
-// #if defined(WIN32)
-//     WaitForSingleObject((HANDLE)lock, INFINITE);
-// #else
-//     pthread_mutex_lock((pthread_mutex_t *)lock);
-// #endif
-// }
-
-// void _app_logger_lock_release(logger_lock_t lock)
-// {
-// #if defined(WIN32)
-//     ReleaseMutex((HANDLE)lock);
-// #else
-//     pthread_mutex_unlock((pthread_mutex_t *)lock);
-// #endif
-// }
-
-int main(void)
-{
-    struct LOGGER_CFG cfg = {0};
-
-#if !defined(WIN32)
-    pthread_mutex_init(&_lock, NULL);
-#endif
-
-    cfg.buf = _logbuf;
-    cfg.buf_size = sizeof(_logbuf);
-    cfg.syscall_time = time;
-    cfg.syscall_localtime = localtime;
-#if defined(WIN32)
-    cfg.lock = (logger_lock_t)_lock;
-#else
-    cfg.lock = (logger_lock_t)&_lock;
-#endif
-    cfg.acquire_lock = _app_logger_lock_acquire;
-    cfg.release_lock = _app_logger_lock_release;
-
-    // init logger, layout, appender
-    logger_init(&_logger, &cfg);
-    logger_set_default(&_logger);
-    logger_layout_full_init(&_layout);
-    logger_appender_console_init(&_appender);
-    logger_layout_add_appender(&_layout, &_appender);
-    logger_add_layout(&_logger, &_layout);
-
-    LOGLV("hello world");
-    LOGLD("hello world");
-    LOGLI("hello world");
-    LOGLW("hello world");
-    LOGLE("hello world");
-    LOGLF("hello world");
-
+int main(void) {
+    printf("=== Logger库功能演示 ===\n");
+    
+    /* 1. 基本使用 - 开箱即用 */
+    printf("\n1. 基本使用（开箱即用）:\n");
+    logger_quick_startup();
+    
+    LOGI("应用程序启动");
+    LOGD("调试信息: %d", 42);
+    LOGW("警告: %s", "可能有问题");
+    LOGE("错误: %s", "文件未找到");
+    
+    logger_quick_cleanup();
+    
+    /* 2. 高级配置 */
+    printf("\n2. 高级配置:\n");
+    logger_t logger;
+    logger_config_t config = {0};
+    char buffer[4096];
+    
+    /* 配置logger */
+    config.buffer = buffer;
+    config.buffer_size = sizeof(buffer);
+    config.min_level = LOG_LEVEL_DEBUG;
+    config.enable_thread_safety = 1;
+    
+    /* 初始化logger */
+    logger_init(&logger, &config);
+    
+    /* 创建控制台appender */
+    logger_appender_console_config_t console_cfg = {0};
+    console_cfg.enable_colors = 1;
+    console_cfg.enable_timestamp = 1;
+    
+    logger_appender_t *console_appender = logger_appender_create_console(&console_cfg);
+    
+    /* 创建layout */
+    logger_layout_t *full_layout = logger_layout_create_full();
+    
+    /* 设置layout */
+    logger_appender_set_layout(console_appender, full_layout);
+    
+    /* 添加appender到logger */
+    logger_add_appender(&logger, console_appender);
+    
+    /* 记录日志 */
+    logger_printf(&logger, LOG_LEVEL_INFO, __FILE__, __LINE__, __FUNCTION__, 
+                  "高级配置测试: %s", "成功!");
+    
+    /* 清理资源 */
+    logger_remove_appender(&logger, console_appender);
+    logger_layout_destroy(full_layout);
+    logger_appender_destroy(console_appender);
+    logger_deinit(&logger);
+    
+    printf("\n=== 演示完成 ===\n");
+    printf("Logger库功能正常！\n");
     return 0;
 }
