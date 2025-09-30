@@ -8,6 +8,8 @@
 /* Forward declarations */
 static int full_layout_format_func(logger_layout_t *layout, const struct logger_event_t *event, 
                                   char *buffer, int buffer_size);
+static int classic_layout_format_func(logger_layout_t *layout, const struct logger_event_t *event, 
+                                    char *buffer, int buffer_size);
 static int simple_layout_format_func(logger_layout_t *layout, const struct logger_event_t *event, 
                                     char *buffer, int buffer_size);
 static int syslog_layout_format_func(logger_layout_t *layout, const struct logger_event_t *event, 
@@ -25,6 +27,18 @@ logger_layout_t *logger_layout_create_full(void) {
     
     memset(layout, 0, sizeof(logger_layout_t));
     layout->format = full_layout_format_func;
+    
+    return layout;
+}
+
+logger_layout_t *logger_layout_create_classic(void) {
+    logger_layout_t *layout = logger_malloc(sizeof(logger_layout_t));
+    if (!layout) {
+        return NULL;
+    }
+    
+    memset(layout, 0, sizeof(logger_layout_t));
+    layout->format = classic_layout_format_func;
     
     return layout;
 }
@@ -106,10 +120,37 @@ int full_layout_format_func(logger_layout_t *layout, const struct logger_event_t
     const char *func = event->func ? event->func : "unknown";
     
     int len = snprintf(buffer, buffer_size,
-                      "[%04d-%02d-%02d %02d:%02d:%02d.%03d] [%s] [T%u] [%s:%u:%s] %s\n",
+                      "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [T%u] [%s:%u:%s] %s\n",
                       tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
                       tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec, timestamp_ms,
                       level_str, event->tid, file, event->line, func, event->data);
+    
+    return (len < buffer_size) ? len : buffer_size - 1;
+}
+
+int classic_layout_format_func(logger_layout_t *layout, const struct logger_event_t *event, 
+                       char *buffer, int buffer_size) {
+    if (!event || !buffer || buffer_size <= 0) {
+        return -1;
+    }
+    
+    /* Format: [YYYY-MM-DD HH:MM:SS.mmm] [LEVEL] [TID] [FILE:LINE:FUNC] MESSAGE */
+    struct tm *tm_info;
+    time_t timestamp_sec = event->timestamp_ns / 1000000000;
+    uint32_t timestamp_ms = (event->timestamp_ns % 1000000000) / 1000000;
+    
+    tm_info = localtime(&timestamp_sec);
+    if (!tm_info) {
+        return -1;
+    }
+    
+    const char *level_str = logger_level_to_string(event->level);
+    
+    int len = snprintf(buffer, buffer_size,
+                      "%04d-%02d-%02d %02d:%02d:%02d.%03d %C %s\n",
+                      tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
+                      tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec, timestamp_ms,
+                      level_str[0], event->data);
     
     return (len < buffer_size) ? len : buffer_size - 1;
 }

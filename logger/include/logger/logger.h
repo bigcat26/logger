@@ -242,6 +242,12 @@ int logger_appender_destroy(logger_appender_t *appender);
 logger_layout_t *logger_layout_create_full(void);
 
 /**
+ * Create classic layout (includes timestamp, level, thread ID)
+ * @return Created layout instance, NULL on error
+ */
+logger_layout_t *logger_layout_create_classic(void);
+
+/**
  * Create simple layout (minimal information)
  * @return Created layout instance, NULL on error
  */

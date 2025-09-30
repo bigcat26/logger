@@ -116,9 +116,9 @@ int logger_quick_startup(void) {
         
         logger_appender_t *console_appender = logger_appender_create_console(&console_cfg);
         if (console_appender) {
-            logger_layout_t *simple_layout = logger_layout_create_simple();
-            if (simple_layout) {
-                logger_appender_set_layout(console_appender, simple_layout);
+            logger_layout_t *classic_layout = logger_layout_create_classic();
+            if (classic_layout) {
+                logger_appender_set_layout(console_appender, classic_layout);
             }
             logger_add_appender(&_default_logger_instance, console_appender);
         }
