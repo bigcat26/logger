@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Unit test",
+            "type": "cppdbg",
+            "MIMode": "lldb",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${cmake.testProgram}",
+            "args": [
+                "${cmake.testArgs}"
+            ],
+            "preLaunchTask": "build",
+        },
+        {
+            "name": "(LLDB) Unit test",
+            "type": "lldb",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${cmake.testProgram}",
+            "args": [
+                "${cmake.testArgs}"
+            ],
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "example",
+            "type": "cppdbg",
+            "MIMode": "lldb",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/.build/example/logger-example",
+            "args": [],
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "(LLDB) example",
+            "type": "lldb",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/.build/example/logger-example",
+            "args": [],
+            "preLaunchTask": "build"
+        }
+    ]
+}
