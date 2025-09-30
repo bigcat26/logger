@@ -29,7 +29,7 @@ int main(void) {
     /* 配置logger */
     config.buffer = buffer;
     config.buffer_size = sizeof(buffer);
-    config.min_level = LOG_LEVEL_DEBUG;
+    config.min_level = LOG_DEBUG;
     config.enable_thread_safety = 1;
     
     /* 初始化logger */
@@ -52,7 +52,7 @@ int main(void) {
     logger_add_appender(&logger, console_appender);
     
     /* 记录日志 */
-    logger_printf(&logger, LOG_LEVEL_INFO, __FILE__, __LINE__, __FUNCTION__, 
+    logger_printf(&logger, LOG_INFO, __FILE__, __LINE__, __FUNCTION__, 
                   "高级配置测试: %s", "成功!");
     
     /* 清理资源 */

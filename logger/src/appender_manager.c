@@ -336,24 +336,24 @@ int udp_appender_write_func(logger_appender_t *appender, const struct logger_eve
 
 static const char *get_level_color(logger_appender_t *appender, log_level_t level) {
     switch (level) {
-        case LOG_LEVEL_VERBOSE: return LOGGER_GRAY;
-        case LOG_LEVEL_DEBUG:   return LOGGER_CYAN;
-        case LOG_LEVEL_INFO:    return LOGGER_GREEN;
-        case LOG_LEVEL_WARN:    return LOGGER_YELLOW;
-        case LOG_LEVEL_ERROR:   return LOGGER_RED;
-        case LOG_LEVEL_FATAL:   return LOGGER_L_RED;
+        case LOG_VERBOSE: return LOGGER_GRAY;
+        case LOG_DEBUG:   return LOGGER_CYAN;
+        case LOG_INFO:    return LOGGER_GREEN;
+        case LOG_WARN:    return LOGGER_YELLOW;
+        case LOG_ERROR:   return LOGGER_RED;
+        case LOG_FATAL:   return LOGGER_L_RED;
         default:                return NULL;
     }
 }
 
 static int get_syslog_priority(log_level_t level) {
     switch (level) {
-        case LOG_LEVEL_VERBOSE: return 7; /* DEBUG */
-        case LOG_LEVEL_DEBUG:   return 7; /* DEBUG */
-        case LOG_LEVEL_INFO:    return 6; /* INFO */
-        case LOG_LEVEL_WARN:    return 4; /* WARNING */
-        case LOG_LEVEL_ERROR:   return 3; /* ERROR */
-        case LOG_LEVEL_FATAL:   return 2; /* CRITICAL */
+        case LOG_VERBOSE: return 7; /* DEBUG */
+        case LOG_DEBUG:   return 7; /* DEBUG */
+        case LOG_INFO:    return 6; /* INFO */
+        case LOG_WARN:    return 4; /* WARNING */
+        case LOG_ERROR:   return 3; /* ERROR */
+        case LOG_FATAL:   return 2; /* CRITICAL */
         default:                return 6; /* INFO */
     }
 }

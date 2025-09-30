@@ -249,7 +249,7 @@ int main(void) {
     logger_appender_set_layout(file_appender, full_layout);
     
     // 添加过滤器
-    struct logger_filter_t *level_filter = logger_filter_create_level(LOG_LEVEL_INFO);
+    struct logger_filter_t *level_filter = logger_filter_create_level(LOG_INFO);
     logger_appender_add_filter(console_appender, level_filter);
     
     // 添加到Logger

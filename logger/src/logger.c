@@ -37,7 +37,7 @@ int logger_init(logger_t *logger, const logger_config_t *config) {
     memset(logger, 0, sizeof(logger_t));
     
     /* Set default configuration */
-    logger->min_level = LOG_LEVEL_INFO;
+    logger->min_level = LOG_INFO;
     
     if (config) {
         /* Use provided buffer or allocate new one */
@@ -101,7 +101,7 @@ int logger_quick_startup(void) {
     
     logger_config_t config = {0};
     config.buffer_size = LOGGER_DEFAULT_LINE_SIZE;
-    config.min_level = LOG_LEVEL_INFO;
+    config.min_level = LOG_INFO;
     config.enable_thread_safety = 1;
     
     int result = logger_init(&_default_logger_instance, &config);
@@ -321,7 +321,7 @@ int logger_set_level(logger_t *logger, log_level_t level) {
 
 log_level_t logger_get_level(logger_t *logger) {
     if (!logger) {
-        return LOG_LEVEL_INFO;
+        return LOG_INFO;
     }
     
     return logger->min_level;
@@ -350,29 +350,29 @@ int logger_flush(logger_t *logger) {
 
 const char *logger_level_to_string(log_level_t level) {
     switch (level) {
-        case LOG_LEVEL_VERBOSE: return "VERBOSE";
-        case LOG_LEVEL_DEBUG:   return "DEBUG";
-        case LOG_LEVEL_INFO:    return "INFO";
-        case LOG_LEVEL_WARN:    return "WARN";
-        case LOG_LEVEL_ERROR:   return "ERROR";
-        case LOG_LEVEL_FATAL:   return "FATAL";
+        case LOG_VERBOSE: return "VERBOSE";
+        case LOG_DEBUG:   return "DEBUG";
+        case LOG_INFO:    return "INFO";
+        case LOG_WARN:    return "WARN";
+        case LOG_ERROR:   return "ERROR";
+        case LOG_FATAL:   return "FATAL";
         default:                return "UNKNOWN";
     }
 }
 
 log_level_t logger_string_to_level(const char *str) {
     if (!str) {
-        return LOG_LEVEL_INFO;
+        return LOG_INFO;
     }
     
-    if (strcmp(str, "VERBOSE") == 0) return LOG_LEVEL_VERBOSE;
-    if (strcmp(str, "DEBUG") == 0)   return LOG_LEVEL_DEBUG;
-    if (strcmp(str, "INFO") == 0)    return LOG_LEVEL_INFO;
-    if (strcmp(str, "WARN") == 0)    return LOG_LEVEL_WARN;
-    if (strcmp(str, "ERROR") == 0)   return LOG_LEVEL_ERROR;
-    if (strcmp(str, "FATAL") == 0)   return LOG_LEVEL_FATAL;
+    if (strcmp(str, "VERBOSE") == 0) return LOG_VERBOSE;
+    if (strcmp(str, "DEBUG") == 0)   return LOG_DEBUG;
+    if (strcmp(str, "INFO") == 0)    return LOG_INFO;
+    if (strcmp(str, "WARN") == 0)    return LOG_WARN;
+    if (strcmp(str, "ERROR") == 0)   return LOG_ERROR;
+    if (strcmp(str, "FATAL") == 0)   return LOG_FATAL;
     
-    return LOG_LEVEL_INFO; /* Default fallback */
+    return LOG_INFO; /* Default fallback */
 }
 
 /* Internal Helper Functions */

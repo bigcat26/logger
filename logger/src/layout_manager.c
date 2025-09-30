@@ -191,12 +191,12 @@ int syslog_layout_format_func(logger_layout_t *layout, const struct logger_event
 
 static int get_syslog_priority(log_level_t level) {
     switch (level) {
-        case LOG_LEVEL_VERBOSE: return 7; /* DEBUG */
-        case LOG_LEVEL_DEBUG:   return 7; /* DEBUG */
-        case LOG_LEVEL_INFO:    return 6; /* INFO */
-        case LOG_LEVEL_WARN:    return 4; /* WARNING */
-        case LOG_LEVEL_ERROR:   return 3; /* ERROR */
-        case LOG_LEVEL_FATAL:   return 2; /* CRITICAL */
+        case LOG_VERBOSE: return 7; /* DEBUG */
+        case LOG_DEBUG:   return 7; /* DEBUG */
+        case LOG_INFO:    return 6; /* INFO */
+        case LOG_WARN:    return 4; /* WARNING */
+        case LOG_ERROR:   return 3; /* ERROR */
+        case LOG_FATAL:   return 2; /* CRITICAL */
         default:                return 6; /* INFO */
     }
 }
