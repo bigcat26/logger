@@ -5,7 +5,7 @@ option(CONFIG_LOGGER_OSAL_WIN32      "Win32 OSAL" OFF)
 option(CONFIG_LOGGER_APPENDER_FILE   "Build with file appender" OFF)
 option(CONFIG_LOGGER_APPENDER_SYSLOG "Build with syslog appender" OFF)
 
-file (GLOB src_files src/* include/logger/*)
+file (GLOB src_files src/*.c include/logger/*)
 
 if(CONFIG_LOGGER_OSAL_POSIX)
     list(APPEND src_files src/port/osal_posix.c)

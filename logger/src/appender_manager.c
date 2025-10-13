@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include "logger/logger.h"
 #include "logger/osal.h"
+#include "logger/appender_file.h"
+#include "logger/appender_udp.h"
+#include "logger/layout_syslog.h"
 
 /* Forward declarations */
 static int console_appender_write_func(logger_appender_t *appender, const struct logger_event_t *event);
@@ -61,25 +65,36 @@ logger_appender_t *logger_appender_create_file(const logger_appender_file_config
     
     memset(appender, 0, sizeof(logger_appender_t));
     
-    /* Initialize file appender */
-    appender->write = file_appender_write_func;
-    appender->buffer_size = LOGGER_DEFAULT_LINE_SIZE;
-    appender->buffer = logger_malloc(appender->buffer_size);
-    if (!appender->buffer) {
+    /* Initialize file appender using independent implementation */
+    if (logger_appender_file_init(appender, config->filename) != 0) {
         logger_free(appender);
         return NULL;
     }
     
-    /* Set configuration */
-    logger_appender_file_config_t *cfg = logger_malloc(sizeof(logger_appender_file_config_t));
-    if (!cfg) {
-        logger_free(appender->buffer);
-        logger_free(appender);
-        return NULL;
+    /* Configure additional options */
+    if (config->max_file_size > 0) {
+        logger_appender_file_config(appender, LOGGER_APPENDER_FILE_CFG_FILE_SIZE_LIMIT, config->max_file_size);
     }
     
-    memcpy(cfg, config, sizeof(logger_appender_file_config_t));
-    appender->user_data = cfg;
+    if (config->max_files > 0) {
+        logger_appender_file_config(appender, LOGGER_APPENDER_FILE_CFG_MAX_FILES, config->max_files);
+    }
+    
+    if (config->backup_path) {
+        logger_appender_file_config(appender, LOGGER_APPENDER_FILE_CFG_BACKUP_PATH, config->backup_path);
+    }
+    
+    if (config->rotation_mode >= 0) {
+        logger_appender_file_config(appender, LOGGER_APPENDER_FILE_CFG_ROTATION_MODE, config->rotation_mode);
+    }
+    
+    if (config->rotation_interval_hours > 0) {
+        logger_appender_file_config(appender, LOGGER_APPENDER_FILE_CFG_ROTATION_INTERVAL, config->rotation_interval_hours);
+    }
+    
+    if (config->enable_compression) {
+        logger_appender_file_config(appender, LOGGER_APPENDER_FILE_CFG_ENABLE_COMPRESSION, config->enable_compression);
+    }
     
     /* Initialize thread lock */
     logger_lock_new(&appender->lock);
@@ -131,25 +146,27 @@ logger_appender_t *logger_appender_create_udp(const logger_appender_udp_config_t
     
     memset(appender, 0, sizeof(logger_appender_t));
     
-    /* Initialize UDP appender */
-    appender->write = udp_appender_write_func;
-    appender->buffer_size = LOGGER_DEFAULT_LINE_SIZE;
-    appender->buffer = logger_malloc(appender->buffer_size);
-    if (!appender->buffer) {
+    /* Create socket address */
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(config->port);
+    
+    /* Convert hostname to IP address */
+    if (inet_aton(config->host, &addr.sin_addr) == 0) {
+        logger_free(appender);
+        return NULL; /* Invalid hostname */
+    }
+    
+    /* Initialize UDP appender using independent implementation */
+    if (logger_appender_udp_init(appender, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
         logger_free(appender);
         return NULL;
     }
     
-    /* Set configuration */
-    logger_appender_udp_config_t *cfg = logger_malloc(sizeof(logger_appender_udp_config_t));
-    if (!cfg) {
-        logger_free(appender->buffer);
-        logger_free(appender);
-        return NULL;
-    }
-    
-    memcpy(cfg, config, sizeof(logger_appender_udp_config_t));
-    appender->user_data = cfg;
+    /* Configure additional options */
+    /* Note: UDP appender config doesn't have max_packet_size field */
+    /* TODO: Add max_packet_size to UDP config structure if needed */
     
     /* Initialize thread lock */
     logger_lock_new(&appender->lock);

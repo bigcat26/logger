@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 #include "logger/logger.h"
 #include "logger/osal.h"
+#include "logger/layout_syslog.h"
 
 /* Forward declarations */
 static int full_layout_format_func(logger_layout_t *layout, const struct logger_event_t *event, 
@@ -62,7 +64,12 @@ logger_layout_t *logger_layout_create_syslog(void) {
     }
     
     memset(layout, 0, sizeof(logger_layout_t));
-    layout->format = syslog_layout_format_func;
+    
+    /* Initialize syslog layout using independent implementation */
+    if (logger_layout_syslog_init(layout, SYSLOG_FACILITY_USER, "logger", getpid()) != 0) {
+        logger_free(layout);
+        return NULL;
+    }
     
     return layout;
 }

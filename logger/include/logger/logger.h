@@ -116,11 +116,15 @@ typedef struct {
 
 /* File appender configuration */
 typedef struct {
-  const char *filename;            /**< Log file path */
-  size_t max_file_size;            /**< Maximum file size before rotation */
-  int max_files;                   /**< Maximum number of rotated files */
-  int enable_async;                /**< Enable asynchronous writing */
-  int flush_interval_ms;           /**< Flush interval in milliseconds */
+  const char *filename;              /**< Log file path */
+  size_t max_file_size;              /**< Maximum file size before rotation */
+  int max_files;                      /**< Maximum number of rotated files */
+  int enable_async;                   /**< Enable asynchronous writing */
+  int flush_interval_ms;              /**< Flush interval in milliseconds */
+  int rotation_mode;                  /**< Rotation mode: 0=size-based, 1=time-based */
+  int rotation_interval_hours;        /**< Time-based rotation interval in hours */
+  int enable_compression;             /**< Enable compression of rotated files */
+  const char *backup_path;            /**< Custom backup path for rotated files */
 } logger_appender_file_config_t;
 
 /* Syslog appender configuration */

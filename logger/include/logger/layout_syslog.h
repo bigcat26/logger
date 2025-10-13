@@ -1,6 +1,9 @@
 #ifndef __LOGGER_LAYOUT_SYSLOG_H__
 #define __LOGGER_LAYOUT_SYSLOG_H__
 
+#include <stdbool.h>
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -44,6 +47,22 @@ extern "C"
 int logger_layout_syslog_get_size();
 
 int logger_layout_syslog_init(struct logger_layout_t *layout, int facility, const char *tag, int pid);
+
+int logger_layout_syslog_set_facility(struct logger_layout_t *layout, int facility);
+
+int logger_layout_syslog_set_tag(struct logger_layout_t *layout, const char *tag);
+
+int logger_layout_syslog_set_pid(struct logger_layout_t *layout, int pid);
+
+int logger_layout_syslog_set_options(struct logger_layout_t *layout, bool include_timestamp,
+                                   bool include_hostname, bool include_tag, bool include_pid);
+
+int logger_layout_syslog_deinit(struct logger_layout_t *layout);
+
+int logger_create_syslog_message(char *buffer, size_t size, log_level_t level, int facility,
+                                const char *tag, int pid, const char *message);
+
+int logger_layout_syslog_test(void);
 
 #ifdef __cplusplus
 }
