@@ -247,47 +247,8 @@ int logger_printft(logger_t *logger, log_level_t level, const char *tag, const c
     return 0;
 }
 
-int logger_catf(logger_t *logger, log_level_t level, const char *format, ...) {
-    if (!format) {
-        return -1;
-    }
-    
-    /* Use default logger if none provided */
-    if (!logger) {
-        logger = logger_get_default_logger();
-        if (!logger) {
-            return -1;
-        }
-    }
-    
-    /* Check log level */
-    if (!logger_check_level(logger, level)) {
-        return 0;
-    }
-    
-    /* Format the message */
-    char buffer[LOGGER_DEFAULT_LINE_SIZE];
-    va_list args;
-    va_start(args, format);
-    int len = vsnprintf(buffer, sizeof(buffer), format, args);
-    va_end(args);
-    
-    if (len < 0 || len >= (int)sizeof(buffer)) {
-        return -1;
-    }
-    
-    /* Create and dispatch event */
-    struct logger_event_t event;
-    if (logger_event_create(&event, level, NULL, 0, NULL, NULL, buffer, len) != 0) {
-        return -1;
-    }
-    
-    logger_dispatch_event(logger, &event);
-    return 0;
-}
-
-int logger_printb(logger_t *logger, log_level_t level, const char *file,
-                  unsigned int line, const char *func, const void *data, size_t len) {
+int logger_printbt(logger_t *logger, log_level_t level, const char *tag, const char *file,
+                   unsigned int line, const char *func, const void *data, size_t len) {
     if (!data || len <= 0) {
         return -1;
     }
@@ -307,7 +268,7 @@ int logger_printb(logger_t *logger, log_level_t level, const char *file,
     
     /* Create and dispatch event */
     struct logger_event_t event;
-    if (logger_event_create(&event, level, file, line, func, NULL, (const char *)data, len) != 0) {
+    if (logger_event_create(&event, level, file, line, func, tag, (const char *)data, len) != 0) {
         return -1;
     }
     
