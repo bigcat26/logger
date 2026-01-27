@@ -21,7 +21,7 @@ static volatile int _logger_initialized = 0;
 /* Internal helper functions */
 static int logger_event_create(struct logger_event_t *event, log_level_t level, 
                               const char *file, unsigned int line, const char *func,
-                              const char *data, int data_len);
+                              const char *tag, const char *data, int data_len);
 static void logger_dispatch_event(logger_t *logger, const struct logger_event_t *event);
 static int logger_check_level(logger_t *logger, log_level_t level);
 static void logger_lock_acquire_internal(logger_t *logger);
@@ -200,6 +200,15 @@ int logger_remove_appender(logger_t *logger, logger_appender_t *appender) {
 
 int logger_printf(logger_t *logger, log_level_t level, const char *file, 
                   unsigned int line, const char *func, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    int result = logger_printft(logger, level, NULL, file, line, func, format, args);
+    va_end(args);
+    return result;
+}
+
+int logger_printft(logger_t *logger, log_level_t level, const char *tag, const char *file, 
+                   unsigned int line, const char *func, const char *format, ...) {
     if (!format) {
         return -1;
     }
@@ -230,7 +239,7 @@ int logger_printf(logger_t *logger, log_level_t level, const char *file,
     
     /* Create and dispatch event */
     struct logger_event_t event;
-    if (logger_event_create(&event, level, file, line, func, buffer, len) != 0) {
+    if (logger_event_create(&event, level, file, line, func, tag, buffer, len) != 0) {
         return -1;
     }
     
@@ -269,7 +278,7 @@ int logger_catf(logger_t *logger, log_level_t level, const char *format, ...) {
     
     /* Create and dispatch event */
     struct logger_event_t event;
-    if (logger_event_create(&event, level, NULL, 0, NULL, buffer, len) != 0) {
+    if (logger_event_create(&event, level, NULL, 0, NULL, NULL, buffer, len) != 0) {
         return -1;
     }
     
@@ -298,7 +307,7 @@ int logger_printb(logger_t *logger, log_level_t level, const char *file,
     
     /* Create and dispatch event */
     struct logger_event_t event;
-    if (logger_event_create(&event, level, file, line, func, (const char *)data, len) != 0) {
+    if (logger_event_create(&event, level, file, line, func, NULL, (const char *)data, len) != 0) {
         return -1;
     }
     
@@ -379,7 +388,7 @@ log_level_t logger_string_to_level(const char *str) {
 
 static int logger_event_create(struct logger_event_t *event, log_level_t level, 
                               const char *file, unsigned int line, const char *func,
-                              const char *data, int data_len) {
+                              const char *tag, const char *data, int data_len) {
     if (!event || !data) {
         return -1;
     }
@@ -390,6 +399,7 @@ static int logger_event_create(struct logger_event_t *event, log_level_t level,
     event->line = line;
     event->file = file;
     event->func = func;
+    event->tag = tag;
     event->data = data;
     event->msg_len = data_len;
     event->timestamp_ns = logger_get_timestamp_ns();

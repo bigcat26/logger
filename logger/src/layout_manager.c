@@ -125,12 +125,14 @@ int full_layout_format_func(logger_layout_t *layout, const struct logger_event_t
     const char *level_str = logger_level_to_string(event->level);
     const char *file = event->file ? event->file : "unknown";
     const char *func = event->func ? event->func : "unknown";
+    const char *tag = event->tag ? event->tag : "";
     
     int len = snprintf(buffer, buffer_size,
-                      "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [T%u] [%s:%u:%s] %s\n",
+                      "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [T%u] [%s:%u:%s] %s%s%s\n",
                       tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
                       tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec, timestamp_ms,
-                      level_str, event->tid, file, event->line, func, event->data);
+                      level_str, event->tid, file, event->line, func, 
+                      tag, tag ? " " : "", event->data);
     
     return (len < buffer_size) ? len : buffer_size - 1;
 }

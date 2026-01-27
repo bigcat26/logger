@@ -36,7 +36,7 @@ struct logger_event_t {
   const char *file;       /**< Source file path */
   const char *func;       /**< Function name */
   uint16_t tid;           /**< Thread ID */
-  uint16_t tag_id;        /**< Tag ID for categorization */
+  const char *tag;        /**< Tag string for categorization */
   uint16_t msg_len;       /**< Message length */
   uint16_t bin_len;       /**< Binary data length */
   const char *data;       /**< Log message data */
@@ -319,6 +319,21 @@ int logger_appender_remove_filter(logger_appender_t *appender, logger_filter_t *
 int logger_filter_destroy(logger_filter_t *filter);
 
 /* Logging API */
+
+/**
+ * Log formatted message with tag, file and line information
+ * @param logger Logger instance (NULL for default logger)
+ * @param level Log level
+ * @param tag Tag string
+ * @param file Source file name
+ * @param line Source line number
+ * @param func Function name
+ * @param format Format string
+ * @param ... Format arguments
+ * @return 0 on success, negative value on error
+ */
+int logger_printft(logger_t *logger, log_level_t level, const char *tag, const char *file, 
+                   unsigned int line, const char *func, const char *format, ...);
 
 /**
  * Log formatted message with file and line information
@@ -642,6 +657,42 @@ log_level_t logger_string_to_level(const char *str);
 #define LOGBTV(tag, dat, len)       LOGBT(LOG_VERBOSE,tag, dat, len)
 
 #endif // 编译器选择
+
+/* ============================================================================
+ * TAG LOG MACROS - TAG日志宏
+ * ============================================================================ */
+
+#if defined(_MSC_VER)
+#define LOG_TAG(level, tag, fmt, ...)    logger_printft(logger_get_default_logger(), level, tag, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+#define LOG_TAGL(level, tag, fmt, ...)   logger_printft(logger_get_default_logger(), level, tag, __FILE__, __LINE__, __FUNCTION__, fmt LOGGER_ENDL, __VA_ARGS__)
+#define LOG_TAGC(level, tag, fmt, ...)   logger_catf(logger_get_default_logger(), level, "[" tag "] " fmt, __VA_ARGS__)
+#else
+#define LOG_TAG(level, tag, fmt, args...) logger_printft(logger_get_default_logger(), level, tag, __FILE__, __LINE__, __FUNCTION__, fmt, ##args)
+#define LOG_TAGL(level, tag, fmt, args...) logger_printft(logger_get_default_logger(), level, tag, __FILE__, __LINE__, __FUNCTION__, fmt LOGGER_ENDL, ##args)
+#define LOG_TAGC(level, tag, fmt, args...) logger_catf(logger_get_default_logger(), level, "[" tag "] " fmt, ##args)
+#endif
+
+/* TAG log macros */
+#define LOG_TAGV(tag, fmt, args...) LOG_TAG(LOG_VERBOSE, tag, fmt, ##args)
+#define LOG_TAGD(tag, fmt, args...) LOG_TAG(LOG_DEBUG,   tag, fmt, ##args)
+#define LOG_TAGI(tag, fmt, args...) LOG_TAG(LOG_INFO,    tag, fmt, ##args)
+#define LOG_TAGW(tag, fmt, args...) LOG_TAG(LOG_WARN,    tag, fmt, ##args)
+#define LOG_TAGE(tag, fmt, args...) LOG_TAG(LOG_ERROR,   tag, fmt, ##args)
+#define LOG_TAGF(tag, fmt, args...) LOG_TAG(LOG_FATAL,   tag, fmt, ##args)
+
+#define LOG_TAGVL(tag, fmt, args...) LOG_TAGL(LOG_VERBOSE, tag, fmt, ##args)
+#define LOG_TAGDL(tag, fmt, args...) LOG_TAGL(LOG_DEBUG,   tag, fmt, ##args)
+#define LOG_TAGIL(tag, fmt, args...) LOG_TAGL(LOG_INFO,    tag, fmt, ##args)
+#define LOG_TAGWL(tag, fmt, args...) LOG_TAGL(LOG_WARN,    tag, fmt, ##args)
+#define LOG_TAGEL(tag, fmt, args...) LOG_TAGL(LOG_ERROR,   tag, fmt, ##args)
+#define LOG_TAGFL(tag, fmt, args...) LOG_TAGL(LOG_FATAL,   tag, ##args)
+
+#define LOG_TAGVC(tag, fmt, args...) LOG_TAGC(LOG_VERBOSE, tag, fmt, ##args)
+#define LOG_TAGDC(tag, fmt, args...) LOG_TAGC(LOG_DEBUG,   tag, fmt, ##args)
+#define LOG_TAGIC(tag, fmt, args...) LOG_TAGC(LOG_INFO,    tag, fmt, ##args)
+#define LOG_TAGWC(tag, fmt, args...) LOG_TAGC(LOG_WARN,    tag, fmt, ##args)
+#define LOG_TAGEC(tag, fmt, args...) LOG_TAGC(LOG_ERROR,   tag, fmt, ##args)
+#define LOG_TAGFC(tag, fmt, args...) LOG_TAGC(LOG_FATAL,   tag, fmt, ##args)
 
 #ifdef __cplusplus
 }
